@@ -121,7 +121,7 @@ mutation {
     priority: <PRIORITY>
   }) {
     success
-    issue { id identifier url }
+    issue { id identifier url branchName }
   }
 }
 ```
@@ -152,7 +152,7 @@ mutation {
 <"Approved" / "Escalated after 5 iterations" / "N/A">
 ```
 
-Save the returned `identifier` (e.g. `VH-123`) and `url` — used for branch naming and PR body.
+Save the returned `identifier` (e.g. `VH-123`), `url`, and `branchName` — use the exact `branchName` Linear returns for the git branch.
 
 **For warning/info alerts:** after creating the Linear issue, skip to Step 12 (Report to Channel).
 
@@ -201,7 +201,7 @@ Rules (enforced strictly):
 ## Step 10 — Commit, Push, PR
 
 Invoke the `/commit-push-pr` skill with these specifics:
-- **Branch name:** `darkseer/<LINEAR-IDENTIFIER>-<slug>` (e.g. `darkseer/VH-123-fix-5xx-errors`, using the identifier from Step 5)
+- **Branch name:** exact `branchName` returned by Linear in Step 5 (do not construct it manually)
 - **Commit message:** `fix: [DarkSeer] <ALERT summary>`
 - **PR title:** `[DarkSeer] Fix: <ALERT>`
 - **PR body:**
@@ -257,7 +257,7 @@ Collect comments where `user.login == "coderabbitai[bot]"` and the thread is not
   cd /workspace/repos/<repo-name>
   git add -u  # stage all tracked modifications
   git commit -m "fix: address CodeRabbit feedback — <brief description>"
-  git push origin darkseer/<LINEAR-IDENTIFIER>-<slug>
+  git push origin <branchName from Step 5>
   ```
 - Wait 3 minutes, re-poll
 
