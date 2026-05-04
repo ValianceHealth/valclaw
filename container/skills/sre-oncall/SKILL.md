@@ -27,8 +27,8 @@ Keyword inference (use when SERVICE label is absent):
 ## Grafana/Loki Connection
 
 - Grafana base URL: `http://dark-seer-prod.tail9751f6.ts.net:3000`
-- Loki datasource UID: `P8E80F9AEF21F6940`
-- Loki query endpoint: `http://dark-seer-prod.tail9751f6.ts.net:3000/api/datasources/proxy/P8E80F9AEF21F6940/loki/api/v1/query_range`
+- Loki datasource UID: `1`
+- Loki query endpoint: `http://dark-seer-prod.tail9751f6.ts.net:3000/api/datasources/proxy/1/loki/api/v1/query_range`
 - Auth: injected automatically by OneCLI vault (Bearer token on that host)
 
 ## Step 1 — Parse and Filter
@@ -87,7 +87,7 @@ Then stop. Do NOT create a Linear issue for unrecognized alerts.
 Use the LogQL `query` saved from Step 1b. Strip any threshold condition (the `> N` part) to get the pure log stream expression. Run it against Loki over a 1-hour window with limit=200:
 
 ```
-http://dark-seer-prod.tail9751f6.ts.net:3000/api/datasources/proxy/P8E80F9AEF21F6940/loki/api/v1/query_range
+http://dark-seer-prod.tail9751f6.ts.net:3000/api/datasources/proxy/1/loki/api/v1/query_range
   ?query=<LogQL from Step 1b, threshold removed>
   &start=<now-1h in nanoseconds>
   &end=<now in nanoseconds>
