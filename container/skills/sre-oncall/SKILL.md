@@ -152,7 +152,7 @@ mutation {
 <"Approved" / "Escalated after 5 iterations" / "N/A">
 ```
 
-Save the returned `identifier` (e.g. `VH-123`), `url`, and `branchName` — use the exact `branchName` Linear returns for the git branch.
+Save the returned `identifier`, `url`, and `branchName` — use `branchName` exactly as returned by Linear for all git branch operations.
 
 **For warning/info alerts:** after creating the Linear issue, skip to Step 12 (Report to Channel).
 
@@ -201,7 +201,7 @@ Rules (enforced strictly):
 ## Step 10 — Commit, Push, PR
 
 Invoke the `/commit-push-pr` skill with these specifics:
-- **Branch name:** exact `branchName` returned by Linear in Step 5 (do not construct it manually)
+- **Branch name:** use the `branchName` returned by Linear in Step 5 exactly as-is (e.g. `ridhwan/val-123-darkseer-alert-summary`)
 - **Commit message:** `fix: [DarkSeer] <ALERT summary>`
 - **PR title:** `[DarkSeer] Fix: <ALERT>`
 - **PR body:**
