@@ -59,6 +59,24 @@ import { isValidTimezone } from '../src/timezone.js';
 const CLI_AGENT_NAME = 'Terminal Agent';
 const RUN_START = Date.now();
 
+const LOCAL_BIN = path.join(process.env.HOME ?? '', '.local', 'bin');
+
+/**
+ * Some installs (e.g. fresh Ubuntu user shells) put `onecli` in `~/.local/bin`,
+ * which isn't on PATH for non-login Node processes. Mirror the helper used in
+ * setup/onecli.ts and setup/auth.ts so onecli invocations from this driver
+ * resolve the binary.
+ */
+function pathWithLocalBin(): string {
+  const parts = [LOCAL_BIN];
+  if (process.env.PATH) parts.push(process.env.PATH);
+  return parts.join(path.delimiter);
+}
+
+function onecliEnv(): NodeJS.ProcessEnv {
+  return { ...process.env, PATH: pathWithLocalBin() };
+}
+
 type ChannelChoice = 'telegram' | 'discord' | 'whatsapp' | 'signal' | 'teams' | 'slack' | 'imessage' | 'skip';
 
 async function main(): Promise<void> {
@@ -789,6 +807,7 @@ async function runPasteAuth(method: 'oauth' | 'api'): Promise<void> {
     },
     {
       extraFields: { METHOD: method },
+      env: onecliEnv(),
     },
   );
   if (!res.ok) {
@@ -845,7 +864,7 @@ async function runCustomEndpointAuth(
       running: `Saving your Anthropic auth token to your OneCLI vault…`,
       done: 'Claude account connected.',
     },
-    { extraFields: { METHOD: 'custom-endpoint', HOST: host } },
+    { extraFields: { METHOD: 'custom-endpoint', HOST: host }, env: onecliEnv() },
   );
   if (!res.ok) {
     await fail(
@@ -1118,6 +1137,7 @@ function anthropicSecretExists(): boolean {
     const res = spawnSync('onecli', ['secrets', 'list'], {
       encoding: 'utf-8',
       stdio: ['ignore', 'pipe', 'pipe'],
+      env: onecliEnv(),
     });
     if (res.status !== 0) return false;
     return /anthropic/i.test(res.stdout ?? '');
@@ -1136,6 +1156,7 @@ function detectExistingOnecli(): { version: string; apiHost: string } | null {
     const ver = spawnSync('onecli', ['version'], {
       encoding: 'utf-8',
       stdio: ['ignore', 'pipe', 'ignore'],
+      env: onecliEnv(),
     });
     if (ver.status !== 0) return null;
     const version = (ver.stdout ?? '').trim();
@@ -1144,6 +1165,7 @@ function detectExistingOnecli(): { version: string; apiHost: string } | null {
     const host = spawnSync('onecli', ['config', 'get', 'api-host'], {
       encoding: 'utf-8',
       stdio: ['ignore', 'pipe', 'ignore'],
+      env: onecliEnv(),
     });
     if (host.status !== 0) return null;
     const raw = (host.stdout ?? '').trim();

@@ -1,0 +1,26 @@
+diff --git a/dist/index.js b/dist/index.js
+index 48c245309ea4468b13c83f1d33953cd85195e679..e66e69ca99bd74e72f98fc5c52e513ce247e8a30 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -1904,7 +1904,20 @@ var SlackAdapter = class _SlackAdapter {
+   async parseSlackMessage(event, threadId, options) {
+     const isMe = this.isMessageFromSelf(event);
+     const skipSelfMention = options?.skipSelfMention ?? true;
+-    const rawText = event.text || "";
++    let rawText = event.text || "";
++    // Fall back to attachment content when top-level text is empty so Chat SDK's
++    // pattern.test(text) dispatch gate doesn't drop legacy-attachment messages
++    // (Grafana, PagerDuty, GitHub, etc.).
++    if (!rawText && Array.isArray(event.attachments) && event.attachments.length > 0) {
++      const parts = [];
++      for (const a of event.attachments) {
++        if (a.pretext) parts.push(a.pretext);
++        if (a.title) parts.push(a.title);
++        if (a.text) parts.push(a.text);
++        else if (a.fallback) parts.push(a.fallback);
++      }
++      rawText = parts.join("\n");
++    }
+     let userName = event.username || "unknown";
+     let fullName = event.username || "unknown";
+     if (event.user && !event.username) {

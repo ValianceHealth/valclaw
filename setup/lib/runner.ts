@@ -184,6 +184,7 @@ export function spawnQuiet(
       env: envOverride ? { ...process.env, ...envOverride } : process.env,
     });
     let transcript = '';
+    let settled = false;
     const raw = fs.createWriteStream(rawLogPath, { flags: 'w' });
     raw.write(`# ${[cmd, ...args].join(' ')} — ${new Date().toISOString()}\n\n`);
     const blocks: Block[] = [];
@@ -198,7 +199,18 @@ export function spawnQuiet(
       transcript += c.toString('utf-8');
       raw.write(c);
     });
+    child.on('error', (err) => {
+      if (settled) return;
+      settled = true;
+      const msg = `spawn ${cmd} failed: ${(err as Error).message}\n`;
+      transcript += msg;
+      raw.write(msg);
+      raw.end();
+      resolve({ ok: false, exitCode: 1, transcript, terminal: null, blocks });
+    });
     child.on('close', (code) => {
+      if (settled) return;
+      settled = true;
       raw.end();
       const terminal =
         [...blocks].reverse().find((b) => b.fields.STATUS) ?? null;
