@@ -201,7 +201,7 @@ Rules (enforced strictly):
 ## Step 10 — Commit, Push, PR
 
 Invoke the `/commit-push-pr` skill with these specifics:
-- **Branch name:** use the `branchName` returned by Linear in Step 5 exactly as-is (e.g. `ridhwan/val-123-darkseer-alert-summary`)
+- **Branch name:** use the `branchName` returned by Linear in Step 5 exactly as-is (e.g. `ridhwan/val-130-avisena-fix-etl-to-fill-in-care_level-in-case_case`)
 - **Commit message:** `fix: [DarkSeer] <ALERT summary>`
 - **PR title:** `[DarkSeer] Fix: <ALERT>`
 - **PR body:**
